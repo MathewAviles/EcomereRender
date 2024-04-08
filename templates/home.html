@@ -4,59 +4,21 @@
 
 {%block content%}
 <div class="container">
-    <h3>Productos</h3>
-    <div class="container my-3 mx-3">
-        <ul class="list-unstyled d-flex">
-            {% for producto in productos %}
-            <li>
-                <div class="card" style="width: 18rem;">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">{{ producto.titulo }}</h5>
-                        <p class="card-text">{{ producto.descripcion }}</p>
-                        <p class="card-text">{{ producto.precio }}</p>
-                        <a href="#" class="btn btn-primary ">Ir a comprar</a>
-                    </div>
+    <h3 class="my-4">Productos</h3>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        {% for producto in productos %}
+        <div class="col">
+            <div class="card h-100">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ producto.titulo }}</h5>
+                    <p class="card-text">{{ producto.descripcion }}</p>
+                    <p class="card-text">{{ producto.precio }}</p>
+                    <a href="#" class="btn btn-primary">Ir a comprar</a>
                 </div>
-            </li>
-            {% endfor %}
-
-            <li>
-                <div class="card" style="width: 18rem;">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Titulo del producto</h5>
-                        <p class="card-text">Descripción del producto.</p>
-                        <p class="card-text">Precio: $...</p>
-                        <a href="#" class="btn btn-primary">Ir a comprar</a>
-                    </div>
-                </div>
-            </li>
-
-            <li>
-                <div class="card" style="width: 18rem;">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Titulo del producto</h5>
-                        <p class="card-text">Descripción del producto.</p>
-                        <p class="card-text">Precio: $...</p>
-                        <a href="#" class="btn btn-primary">Ir a comprar</a>
-                    </div>
-                </div>
-            </li>
-
-            <li>
-                <div class="card" style="width: 18rem;">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Titulo del producto</h5>
-                        <p class="card-text">Descripción del producto.</p>
-                        <p class="card-text">Precio: $...</p>
-                        <a href="#" class="btn btn-primary">Ir a comprar</a>
-                    </div>
-                </div>
-            </li>
-        </ul>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </div>
 {%endblock%}
