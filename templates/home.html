@@ -7,17 +7,19 @@
     <h3>Productos</h3>
     <div class="container my-3 mx-3">
         <ul class="list-unstyled d-flex">
+            {% for producto in productos %}
             <li>
                 <div class="card" style="width: 18rem;">
                     <img src="..." class="card-img-top" alt="...">
                     <div class="card-body text-center">
-                        <h5 class="card-title">Titulo del producto</h5>
-                        <p class="card-text">Descripción del producto.</p>
-                        <p class="card-text">Precio: $...</p>
+                        <h5 class="card-title">{{ producto.titulo }}</h5>
+                        <p class="card-text">{{ producto.descripcion }}</p>
+                        <p class="card-text">{{ producto.precio }}</p>
                         <a href="#" class="btn btn-primary ">Ir a comprar</a>
                     </div>
                 </div>
             </li>
+            {% endfor %}
 
             <li>
                 <div class="card" style="width: 18rem;">
