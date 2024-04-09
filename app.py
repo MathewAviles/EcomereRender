@@ -2,7 +2,6 @@
 from flask import Flask,render_template,request,redirect,url_for,session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, login_user, logout_user, login_required
 
 #DB INIT
 db = SQLAlchemy()
@@ -25,6 +24,7 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(10), nullable=False, default='normal')  # 'normal' or 'admin'
+
     def __init__(self, username, email, password, role='normal'):
         self.username = username
         self.email = email
@@ -44,7 +44,6 @@ def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ecomerce_cgb2_user:9oba2RXPeY23ahKktYqC1iSDpmUsaTP6@dpg-co9itjdjm4es73b03700-a.oregon-postgres.render.com/ecomerce_cgb2'
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    #app.config['SECRET_KEY'] = 'clave_secreta'  # Clave secreta para la sesión
     app.secret_key = 'tu_clave_secreta'  # Clave secreta para las sesiones
 
 
@@ -65,69 +64,73 @@ def home():
     productos = Product.query.all()
     return render_template('home.html', productos=productos)
 
-
-#Ruta principal Registro
+# Agrega una nueva ruta para el registro de usuarios
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
+    # Verifica si el usuario ya está autenticado, si es así, redirige a la página principal
+    if 'user_id' in session:
+        return redirect(url_for('home'))
+    
+    # Verifica si el formulario ha sido enviado
     if request.method == 'POST':
-        # Obtén los datos del formulario
+        # Obtiene los datos del formulario
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+        role = request.form['role']
+
         
-        # Validación de campos (puedes agregar más validaciones según tus necesidades)
-        if not username or not email or not password:
-            return 'Por favor, completa todos los campos.', 400
-        
-        # Verifica si el usuario ya existe en la base de datos
-        existing_user = User.query.filter_by(email=email).first()
+        # Verifica si el nombre de usuario o correo electrónico ya existen en la base de datos
+        existing_user = User.query.filter_by(username=username).first()
+        existing_email = User.query.filter_by(email=email).first()
         if existing_user:
-            return 'El usuario ya existe. Por favor, elige otro correo electrónico.', 400
-        
-        # Hash de la contraseña antes de almacenarla en la base de datos
-        hashed_password = generate_password_hash(password)
-        
-        # Crea un nuevo usuario
-        new_user = User(username=username, email=email, password=hashed_password)
-        # Guarda el nuevo usuario en la base de datos
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # Redirecciona a alguna página después de registrar exitosamente
-        return redirect(url_for('registro_exitoso'))
+            flash('El nombre de usuario ya está en uso.', 'error')
+        elif existing_email:
+            flash('El correo electrónico ya está en uso.', 'error')
+        else:
+            # Crea un nuevo usuario y lo agrega a la base de datos
+            new_user = User(username=username, email=email, password=password, role=role)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('¡Registro exitoso! Por favor inicia sesión.', 'success')
+            return redirect(url_for('login'))
     
-    # Si el método es GET, simplemente renderiza la plantilla de registro
+    # Renderiza el formulario de registro
     return render_template('registro.html')
 
 
-#Ruta principal Login
-# Método para iniciar sesión (login)
-# Método para iniciar sesión (login)
+# Agrega una nueva ruta para el inicio de sesión de los usuarios
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Verifica si el usuario ya está autenticado, si es así, redirige a la página principal
+    if 'user_id' in session:
+        return redirect(url_for('home'))
+    
+    # Verifica si el formulario ha sido enviado
     if request.method == 'POST':
-        # Obtén los datos del formulario
+        # Obtiene los datos del formulario
         email = request.form['email']
         password = request.form['password']
         
-        # Busca el usuario en la base de datos por su correo electrónico
+        # Busca al usuario por nombre de usuario o correo electrónico
         user = User.query.filter_by(email=email).first()
+        if not user:
+            # Si no se encuentra al usuario por nombre de usuario, intenta buscarlo por correo electrónico
+            user = User.query.filter_by(email=email).first()
         
-        # Verifica si se encontró el usuario y la contraseña es correcta
+        # Verifica si se encontró al usuario y si la contraseña es correcta
         if user and user.check_password(password):
-            # Almacena el ID de usuario en la sesión
+            # Si las credenciales son válidas, inicia sesión y redirige a la página principal
             session['user_id'] = user.id
-            print("Inicio de sesión exitoso. Usuario:", user.username)
-
-            # Redirecciona a alguna página después de iniciar sesión exitosamente
+            flash('Inicio de sesión exitoso.', 'success')
             return redirect(url_for('home'))
+        else:
+            # Si las credenciales son incorrectas, muestra un mensaje de error
+            flash('Credenciales incorrectas. Por favor, inténtalo de nuevo.', 'error')
     
-        
-        # Si las credenciales son incorrectas, muestra un mensaje de error
-        return 'Credenciales incorrectas. Por favor, inténtalo de nuevo.', 401
-    
-    # Si el método es GET, simplemente renderiza la plantilla de inicio de sesión
+    # Renderiza el formulario de inicio de sesión
     return render_template('login.html')
+
 
 
 #Métodos Crear Producto
