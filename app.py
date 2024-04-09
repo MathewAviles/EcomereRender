@@ -2,6 +2,10 @@
 from flask import Flask,render_template,request,redirect,url_for,session, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+import os,io
+import base64
+from PIL import Image
 
 #DB INIT
 db = SQLAlchemy()
@@ -13,6 +17,7 @@ class Product(db.Model):
     titulo = db.Column(db.String(100), nullable=False)
     descripcion = db.Column(db.Text, nullable=False)
     precio = db.Column(db.Float, nullable=False)
+    imagen = db.Column(db.LargeBinary, nullable=True)  # Campo para almacenar la imagen como datos binarios
 
     def __repr__(self):
         return f'<Product {self.titulo}>'
@@ -62,6 +67,8 @@ app=create_app()
 @app.route('/')
 def home():
     productos = Product.query.all()
+    for producto in productos:
+        producto.imagen = convertir_imagen_base64(producto.imagen)  # Convierte la imagen a base64
     return render_template('home.html', productos=productos)
 
 # Agrega una nueva ruta para el registro de usuarios
@@ -133,6 +140,38 @@ def login():
 
 
 
+UPLOAD_FOLDER = 'ruta/a/tu/carpeta/de/imagenes'  # Carpeta donde se guardarán las imágenes
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Método para guardar la imagen cargada
+def guardar_imagen(imagen_cargada):
+    if imagen_cargada:
+        filename = secure_filename(imagen_cargada.filename)
+        imagen_cargada.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return filename
+    return None
+
+
+
+def comprimir_imagen(imagen):
+    if imagen:
+        # Abrir la imagen con Pillow
+        img = Image.open(io.BytesIO(imagen))
+
+        # Redimensionar la imagen para reducir su tamaño
+        img.thumbnail((500, 500))  # Establece el tamaño máximo deseado
+        
+        # Guardar la imagen comprimida en un buffer de memoria
+        img_buffer = io.BytesIO()
+        img.save(img_buffer, format='JPEG', quality=70)  # Calidad de compresión ajustable
+        
+        # Obtener los datos binarios de la imagen comprimida
+        imagen_comprimida = img_buffer.getvalue()
+
+        return imagen_comprimida
+    return None
+
+
 #Métodos Crear Producto
 @app.route('/productos', methods=['GET', 'POST'])
 def crear_producto():
@@ -146,7 +185,9 @@ def crear_producto():
                 titulo = request.form['titulo']
                 descripcion = request.form['descripcion']
                 precio = float(request.form['precio'])
-                nuevo_producto = Product(titulo=titulo, descripcion=descripcion, precio=precio)
+                imagen = request.files['imagen'].read()  # Lee los datos de la imagen cargada
+                imagen_comprimida = comprimir_imagen(imagen)
+                nuevo_producto = Product(titulo=titulo, descripcion=descripcion, precio=precio, imagen=imagen_comprimida)
                 db.session.add(nuevo_producto)
                 db.session.commit()
                 return redirect(url_for('home'))
@@ -160,12 +201,25 @@ def crear_producto():
         return redirect(url_for('login'))
     
 
+    
+
 @app.route('/logout')
 def logout():
     # Elimina el ID de usuario de la sesión, si está presente
     session.pop('user_id', None)
     # Redirige al usuario al inicio de sesión (o a cualquier otra página que desees)
     return redirect(url_for('home'))
+
+
+def convertir_imagen_base64(imagen_binaria):
+    if imagen_binaria:
+        # Convierte los datos binarios de la imagen a una cadena base64
+        imagen_base64 = base64.b64encode(imagen_binaria).decode('utf-8')
+        return imagen_base64
+    return None
+
+
+
 
 #RUN APLICATION
 if __name__ == "__main__":
