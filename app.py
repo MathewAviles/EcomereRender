@@ -1,11 +1,15 @@
 #IMPORTS
 from flask import Flask,render_template,request,redirect,url_for,session, flash
 from flask_sqlalchemy import SQLAlchemy
+from wtforms import StringField, FloatField, TextAreaField, FileField
+from wtforms.validators import DataRequired, NumberRange
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os,io
 import base64
 from PIL import Image
+from flask_wtf import FlaskForm
+from functools import wraps
 
 #DB INIT
 db = SQLAlchemy()
@@ -45,6 +49,7 @@ class User(db.Model):
 
 
 #APP INIT
+#Conexion
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ecomerce_cgb2_user:9oba2RXPeY23ahKktYqC1iSDpmUsaTP6@dpg-co9itjdjm4es73b03700-a.oregon-postgres.render.com/ecomerce_cgb2'
@@ -56,10 +61,23 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        print("Conexión a la base de datos establecida correctamente.")
     return app
 app=create_app()
 
+#DECORADOR
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Verifica si el usuario está autenticado y tiene el rol de administrador
+        if 'user_id' in session:
+            user = User.query.get(session['user_id'])
+            if user.role == 'admin':
+                # Si el usuario es un administrador, permite el acceso a la ruta
+                return f(*args, **kwargs)
+        # Si el usuario no está autenticado o no tiene el rol de administrador, redirige a la página de inicio
+        flash('No tienes permisos para acceder a esta página.', 'error')
+        return redirect(url_for('home'))
+    return decorated_function
 
 
 #ROUTES
@@ -139,10 +157,6 @@ def login():
     return render_template('login.html')
 
 
-
-UPLOAD_FOLDER = 'ruta/a/tu/carpeta/de/imagenes'  # Carpeta donde se guardarán las imágenes
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 # Método para guardar la imagen cargada
 def guardar_imagen(imagen_cargada):
     if imagen_cargada:
@@ -172,8 +186,18 @@ def comprimir_imagen(imagen):
     return None
 
 
+
+#Productos ADMIN
+@app.route('/productosad')
+@admin_required
+def productosad():
+    productos = Product.query.all()
+    return render_template('productos.html', productos=productos)
+
+
 #Métodos Crear Producto
 @app.route('/productos', methods=['GET', 'POST'])
+@admin_required
 def crear_producto():
     # Verifica si el usuario está logueado y su rol es "admin"
     if 'user_id' in session:
@@ -200,6 +224,85 @@ def crear_producto():
         # Si el usuario no está logueado, redirige al usuario al inicio de sesión
         return redirect(url_for('login'))
     
+
+
+# Formulario para editar producto
+class ProductForm(FlaskForm):
+    titulo = StringField('Título', validators=[DataRequired()])
+    descripcion = TextAreaField('Descripción', validators=[DataRequired()])
+    precio = FloatField('Precio', validators=[DataRequired(), NumberRange(min=0.01)])
+    imagen = FileField('Imagen')
+
+
+# Ruta para editar un producto
+@app.route('/productos/editar/<int:id>', methods=['GET', 'POST'])
+def editar_producto(id):
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user.role == 'admin':
+            producto = Product.query.get_or_404(id)
+            form = ProductForm(obj=producto)
+            if request.method == 'POST':
+                try:
+                    form.populate_obj(producto)
+                    # Verificar si se cargó una nueva imagen
+                    if form.imagen.data:
+                        # Leer los datos de la nueva imagen cargada
+                        imagen = form.imagen.data.read()
+                        # Comprimir la imagen si es necesario
+                        imagen_comprimida = comprimir_imagen(imagen)
+                        producto.imagen = imagen_comprimida
+                    # Si no se cargó una nueva imagen, mantener la imagen existente
+                    else:
+                        # Recuperar la imagen existente desde la base de datos
+                        imagen_existente = producto.imagen
+                        # Comprimir la imagen existente
+                        imagen_comprimida = comprimir_imagen(imagen_existente)
+                        producto.imagen = imagen_comprimida
+                    db.session.commit()
+                    flash('Producto actualizado correctamente.', 'success')
+                    return redirect(url_for('home'))
+                except Exception as e:
+                    flash('Error al actualizar el producto: {}'.format(str(e)), 'error')
+            return render_template('editar_producto.html', form=form)
+        else:
+            flash('No tienes permisos para acceder a esta página.', 'error')
+            return redirect(url_for('home'))
+    else:
+        return redirect(url_for('login'))
+
+
+
+
+
+    
+
+# Ruta para Eliminar Producto
+@app.route('/eliminar_producto/<int:producto_id>', methods=['POST'])
+@admin_required
+def eliminar_producto(producto_id):
+    # Verifica si el usuario está logueado y su rol es "admin"
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user.role == 'admin':
+            # Busca el producto por su ID
+            producto = Product.query.get(producto_id)
+            if producto:
+                # Elimina el producto de la base de datos
+                db.session.delete(producto)
+                db.session.commit()
+                flash('Producto eliminado exitosamente.', 'success')
+            else:
+                flash('No se encontró el producto a eliminar.', 'error')
+        else:
+            # Si el usuario no es un administrador, muestra un mensaje de error
+            flash('No tienes permisos para eliminar productos.', 'error')
+    else:
+        # Si el usuario no está logueado, redirige al usuario al inicio de sesión
+        flash('Debes iniciar sesión para eliminar productos.', 'error')
+    
+    # Redirige al usuario a la página principal de productos después de eliminar
+    return redirect(url_for('home'))
 
     
 

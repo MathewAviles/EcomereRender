@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %} MatEcomerce - Lista de Productos {% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Productos</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .table-flat {
+            border-collapse: collapse;
+        }
+
+        .table-flat th,
+        .table-flat td {
+            border: 1px solid #dee2e6;
+            padding: .75rem;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .table-flat th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-9">
+                <h2>Lista de Productos</h2>
+                <table class="table table-striped table-flat">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td>{{ producto.titulo }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>${{ producto.precio }}</td>
+                            <td>
+                                <a href="{{ url_for('editar_producto', id=producto.id) }}" class="btn btn-primary">Editar</a>
+                                <form action="{{ url_for('eliminar_producto', producto_id=producto.id) }}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('crear_producto') }}" class="btn btn-outline-primary border-dark" style="background-color: white; color: black;">Crear Producto</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+{% endblock %}
