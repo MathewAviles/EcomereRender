@@ -10,6 +10,7 @@ import base64
 from PIL import Image
 from flask_wtf import FlaskForm
 from functools import wraps
+from sqlalchemy import func
 
 #DB INIT
 db = SQLAlchemy()
@@ -303,6 +304,28 @@ def eliminar_producto(producto_id):
     
     # Redirige al usuario a la página principal de productos después de eliminar
     return redirect(url_for('home'))
+
+# Ruta para buscar un producto
+@app.route('/buscar')
+def buscar_producto():
+    # Obtener el término de búsqueda de la query string
+    termino_busqueda = request.args.get('q').lower()
+
+    # Buscar productos que coincidan con el término de búsqueda
+    productos = Product.query.filter(func.lower(Product.titulo).like(f"%{termino_busqueda}%")).all()
+
+    # Convertir las imágenes de los productos a base64
+    for producto in productos:
+        producto.imagen = convertir_imagen_base64(producto.imagen)
+
+    # Verificar si no se encontraron resultados
+    if not productos:
+        flash(f"No se encontraron resultados para '{termino_busqueda}'.", 'warning')
+        return redirect(url_for('home'))
+
+    # Renderizar el template con los productos encontrados
+    return render_template('resultados_busqueda.html', productos=productos, termino_busqueda=termino_busqueda)
+
 
     
 
