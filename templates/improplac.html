@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %} Información de la Empresa {% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Sección de información de la empresa -->
+    <section class="empresa-info bg-light p-4 mb-4">
+        <h2 class="text-center mb-4">Acerca de Nosotros</h2>
+        <p>Somos una microempresa dedicada a la venta de plantas de gypsum de alta calidad. Nuestro compromiso es ofrecer a nuestros clientes productos naturales y sostenibles para embellecer y mejorar sus espacios.</p>
+        <p>Nuestro equipo está formado por apasionados amantes de la naturaleza, comprometidos con brindar un excelente servicio y asesoramiento para que cada cliente encuentre la planta perfecta para sus necesidades.</p>
+    </section>
+
+    <!-- Sección del carrusel de imágenes -->
+    <section class="carrusel-imagenes bg-light p-4 mb-4">
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="/static/img/6.jpeg" class="d-block mx-auto" style="max-height: 400px;" alt="Imagen 1">
+                </div>
+                <div class="carousel-item">
+                    <img src="/static/img/7.jpeg" class="d-block mx-auto" style="max-height: 400px;" alt="Imagen 2">
+                </div>
+                <!-- Agrega más imágenes al carrusel según necesites -->
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </section>
+</div>
+
+
+<footer class="footer">
+    <!-- Sección de ubicación y redes sociales -->
+    <section class="ubicacion-redes">
+        <p>Dirección: Via a San Luis, Riobamba, Ecuador</p>
+        <ul class="redes-sociales">
+            <li><i class="fab fa-facebook"></i>Facebook</a></li>
+            <li><i class="fab fa-instagram"></i>Instagram</a></li>
+            <li><i class="fab fa-twitter"></i>Twitter</a></li>
+        </ul>
+    </section>
+  </footer>
+{% endblock %}

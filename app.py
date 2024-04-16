@@ -90,6 +90,14 @@ def home():
         producto.imagen = convertir_imagen_base64(producto.imagen)  # Convierte la imagen a base64
     return render_template('home.html', productos=productos)
 
+
+#ROUTES
+#Ruta principal home
+@app.route('/improplac')
+def improplac():
+    return render_template('improplac.html')
+
+
 # Agrega una nueva ruta para el registro de usuarios
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
@@ -274,10 +282,6 @@ def editar_producto(id):
 
 
 
-
-
-    
-
 # Ruta para Eliminar Producto
 @app.route('/eliminar_producto/<int:producto_id>', methods=['POST'])
 @admin_required
@@ -343,7 +347,6 @@ def convertir_imagen_base64(imagen_binaria):
         imagen_base64 = base64.b64encode(imagen_binaria).decode('utf-8')
         return imagen_base64
     return None
-
 
 
 

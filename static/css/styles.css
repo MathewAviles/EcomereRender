@@ -1,3 +1,21 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.footer {
+    text-align: center;
+    margin-top: auto;
+    background-color: #343a40;
+    color: #fff;
+    padding: 10px 0;
+}
+
+.content {
+    margin-bottom: 50px;
+}
+
 /* Estilos para la tabla de productos */
 .table-flat {
     border-collapse: collapse;
@@ -27,20 +45,7 @@
     display: inline-block;
 }
 
-.form-control {
-    display: block;
-    width: 100%;
-    padding: .375rem .75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    border-radius: .25rem;
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-}
-
+.form-control,
 .form-control-file {
     display: block;
     width: 100%;
@@ -73,4 +78,78 @@
     line-height: 1.5;
     border-radius: .25rem;
     transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+/* Estilos adicionales */
+/* Estilos para la sección de información de la empresa */
+.empresa-info {
+    margin-top: 50px;
+}
+
+.empresa-info h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.empresa-info p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+/* Estilos para el carrusel de imágenes */
+.carrusel-imagenes {
+    margin-top: 50px;
+}
+
+.carousel-item img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    display: inline-block;
+    margin: 0 auto;
+}
+
+/* Estilos para la sección de ubicación y redes sociales */
+.ubicacion-redes {
+    display: flex;
+    flex-direction: column;
+    margin-top: 50px;
+}
+
+.ubicacion-redes h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.ubicacion-redes p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.redes-sociales {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.redes-sociales li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Estilos para el footer */
+footer {
+    background-color: #343a40;
+    color: #fff;
+    padding: 2px 0;
+}
+
+.footer p {
+    color: white;
 }
