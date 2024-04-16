@@ -166,15 +166,6 @@ def login():
     return render_template('login.html')
 
 
-# Método para guardar la imagen cargada
-def guardar_imagen(imagen_cargada):
-    if imagen_cargada:
-        filename = secure_filename(imagen_cargada.filename)
-        imagen_cargada.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return filename
-    return None
-
-
 
 def comprimir_imagen(imagen):
     if imagen:
@@ -242,7 +233,6 @@ class ProductForm(FlaskForm):
     precio = FloatField('Precio', validators=[DataRequired(), NumberRange(min=0.01)])
     imagen = FileField('Imagen')
 
-
 # Ruta para editar un producto
 @app.route('/productos/editar/<int:id>', methods=['GET', 'POST'])
 def editar_producto(id):
@@ -273,13 +263,14 @@ def editar_producto(id):
                     return redirect(url_for('home'))
                 except Exception as e:
                     flash('Error al actualizar el producto: {}'.format(str(e)), 'error')
+            # Modificar el formulario para cargar la imagen existente
+            form.imagen.data = producto.imagen
             return render_template('editar_producto.html', form=form)
         else:
             flash('No tienes permisos para acceder a esta página.', 'error')
             return redirect(url_for('home'))
     else:
         return redirect(url_for('login'))
-
 
 
 # Ruta para Eliminar Producto
