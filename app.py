@@ -91,6 +91,13 @@ def home():
     return render_template('home.html', productos=productos)
 
 
+#Ruta reconocimiento
+@app.route('/reconocimiento')
+def reconocimiento():
+    return render_template('reconocimiento.html')
+
+
+
 #ROUTES
 #Ruta principal home
 @app.route('/improplac')
