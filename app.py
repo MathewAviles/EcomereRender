@@ -53,7 +53,9 @@ class User(db.Model):
 #Conexion
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ecomerce_cgb2_user:9oba2RXPeY23ahKktYqC1iSDpmUsaTP6@dpg-co9itjdjm4es73b03700-a.oregon-postgres.render.com/ecomerce_cgb2'
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://ecomerce_cgb2_user:9oba2RXPeY23ahKktYqC1iSDpmUsaTP6@dpg-co9itjdjm4es73b03700-a.oregon-postgres.render.com/ecomerce_cgb2'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://huellitas_gb22_user:yEZoj45HsTBJcclobnI8m1dOveplOOF2@dpg-cr6jotij1k6c73d5fnn0-a.oregon-postgres.render.com/huellitas_gb22'
+
     #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     app.secret_key = 'tu_clave_secreta'  # Clave secreta para las sesiones
 
